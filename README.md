@@ -1,4 +1,4 @@
-# DSAI 523 Cloud Mini Project
+# DSAI 523 Mini Project
 
 Team workspace for Cloud Computing and Distributed Systems.
 
