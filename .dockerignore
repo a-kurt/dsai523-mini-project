@@ -1,0 +1,16 @@
+.git
+.venv
+.env
+.env.*
+!.env.example
+__pycache__
+.pytest_cache
+*.pyc
+*.sqlite*
+instance
+credentials.json
+service-account*.json
+tests
+docs
+node_modules
+artifacts
