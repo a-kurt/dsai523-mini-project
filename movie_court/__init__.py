@@ -54,6 +54,7 @@ def create_app(config=None):
     def index():
         return render_template('index.html')
 
+    @app.get('/health')
     @app.get('/healthz')
     def health():
         try:
