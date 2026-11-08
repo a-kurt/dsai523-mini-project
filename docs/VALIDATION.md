@@ -1,7 +1,39 @@
 # Validation results
 
-Checked on 8 November 2026 in the managed development environment.
-Branch: `feat/movie-court`. Live GCP deployment has not been performed.
+Checked on 8 November 2026. Branch: `feat/movie-court`.
+
+## Verified live deployment
+
+- Live site: https://movie-court-776677100055.europe-west1.run.app
+- GCP project: `movie-court-dsai523`; region: `europe-west1`.
+- Cloud Run uses a non-root Docker image and Cloud SQL PostgreSQL 16
+  (`movie-court-db`, `db-f1-micro`, 10 GiB disk). The runtime account has Cloud SQL
+  Client and access to the three application secrets in Secret Manager.
+- `/health` returned HTTP 200 and confirmed the database connection. Use this
+  public endpoint: Google's front end can intercept the legacy `/healthz` path.
+- The existing pytest suite exited successfully before the health-route fix was
+  built and deployed. Cloud Build passed with Docker BuildKit enabled; the
+  committed `cloudbuild.yaml` and deployment script now use that configuration.
+- Live functional checks passed at **2026-11-08 18:46:21 UTC** using five
+  independent user sessions and real TMDB responses:
+  - registration over HTTPS and Secure/HttpOnly session cookies;
+  - mutation without CSRF rejected;
+  - real Shrek 2 search and server-side movie details;
+  - non-members denied access;
+  - separate prosecutor, defender, and juror invitations; reused token rejected;
+  - advocate arguments, judge denied voting, juror allowed exactly one vote;
+  - vote totals hidden until closing, then the correct verdict returned;
+  - case, membership, arguments, verdict, and authenticated session persisted
+    after creating and routing traffic to a fresh Cloud Run revision.
+- The approved TMDB read token was stored privately in Secret Manager. No token,
+  password, session cookie, or cloud credential was committed or printed.
+- The official TMDB SVG was downloaded unchanged from its attribution page and
+  included in the footer alongside the required disclaimer.
+
+These checks verify deployment and the exercised workflow, not completion of the
+team's presentation or every possible production scenario.
+
+## Earlier managed-development checks
 
 ## Passed
 
@@ -43,30 +75,13 @@ It and the database volume must be preserved; no secrets were added to source.
 GitHub Actions configuration runs both database suites and an image build.
 It has been prepared, but no remote GitHub Actions execution is claimed.
 
-## Live cloud checks still blocked
+## Cloud environment configuration
 
-The user selected GCP project ID `movie-court`. No usable GCP identity was
-connected: the injected credentials file was empty and identity metadata listed
-no connections. The project, billing, and IAM access could not be verified.
-Google Cloud CLI is installed in `/workspace/tools/google-cloud-sdk`.
-
-No TMDB Read Access Token was present. Therefore no live TMDB result is claimed.
-The production app intentionally returns an error when that token is absent.
-The footer contains the TMDB disclaimer and link. Downloading the approved logo
-was blocked by HTTP 403; add the official asset before public release after
-network access is applied. Do not invent or redraw the TMDB logo.
-
-The environment draft saves installation/startup instructions, project/region
-suggestions, TMDB credential requirements, and TMDB/GCP network destinations.
-These are saved proposals, not applied runtime access or a published snapshot.
-Review and save them in environment settings, add the token securely, connect a
-GCP identity, and publish when appropriate. Never paste secrets into chat.
-
-Follow GCP.md to create Cloud SQL and Secret Manager values and deploy Cloud Run.
-Then verify real search, full courtroom behavior, HTTPS/Secure cookies, and case
-persistence across a new Cloud Run revision. **Local PostgreSQL is not proof of
-an external cloud database.** No GCP service or cloud database has been created
-or billed by this task.
+The reusable environment has been republished with `PROJECT_ID=movie-court-dsai523`
+and a keyless Google Cloud OIDC connection restricted to the configured connection
+subject. Existing tasks can retain their older runtime state; new tasks should
+use the latest published environment. The live deployment and validation above
+ran in the authenticated Google Cloud Shell. Do not paste credentials into chat.
 
 ## Course submission remains a team task
 
@@ -76,4 +91,4 @@ with the required project/group/names/student IDs. Keep IDs out of public source
 Publish the source to the public repository and submit accessible repository and
 video links through Moodle. The booklet lists 7 December 2026, 23:59; confirm its
 timezone with the course. The rubric is covered by the implementation plan, but
-cloud evidence and the actual presentation remain necessary for assessment.
+the actual presentation and the team's course submission remain necessary for assessment.
