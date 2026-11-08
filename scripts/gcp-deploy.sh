@@ -43,5 +43,5 @@ gcloud run deploy "$SERVICE_NAME" --image "$IMAGE" --region "$REGION" --project 
   --port 8080 --memory 512Mi --cpu 1 --concurrency 20 --min-instances 0 --max-instances 2 \
   --allow-unauthenticated --quiet
 URL=$(gcloud run services describe "$SERVICE_NAME" --region "$REGION" --project "$PROJECT_ID" --format='value(status.url)')
-curl --fail --silent --show-error --max-time 30 "$URL/healthz"
+curl --fail --silent --show-error --max-time 30 "$URL/health"
 printf '\nOpen %s and follow docs/DEMO.md to validate the live workflow.\n' "$URL"
