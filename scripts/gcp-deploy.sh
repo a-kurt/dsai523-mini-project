@@ -30,7 +30,7 @@ for secret in "$DATABASE_SECRET" "$SESSION_SECRET" "$TMDB_SECRET"; do
   gcloud secrets add-iam-policy-binding "$secret" --member "serviceAccount:$SA_EMAIL" --role roles/secretmanager.secretAccessor --quiet >/dev/null
 done
 # Use .gcloudignore so local credentials and generated files are never uploaded.
-gcloud builds submit . --tag "$IMAGE" --project "$PROJECT_ID" --quiet
+gcloud builds submit . --config cloudbuild.yaml --substitutions "_IMAGE=$IMAGE" --project "$PROJECT_ID" --quiet
 SECRETS="DATABASE_URL=$DATABASE_SECRET:latest,SECRET_KEY=$SESSION_SECRET:latest,TMDB_READ_TOKEN=$TMDB_SECRET:latest"
 gcloud run jobs deploy "$SERVICE_NAME-init" --image "$IMAGE" --region "$REGION" --project "$PROJECT_ID" \
   --service-account "$SA_EMAIL" --set-cloudsql-instances "$SQL_CONNECTION_NAME" \
