@@ -9,7 +9,7 @@ Repository initialized. The team has not selected an application domain, externa
 ## Team
 
 - Atakan Kurt (GitHub: @a-kurt)
-- Ozan (GitHub identity to be confirmed through the repository invitation)
+- Ozan Çolak (GitHub: @ozancolak01)
 - Berry (GitHub: @xemeriusss)
 - Fourth team member: to be confirmed
 
