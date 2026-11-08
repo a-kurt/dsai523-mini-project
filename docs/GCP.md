@@ -19,8 +19,8 @@ suitable PostgreSQL instance and remove resources after assessment when no
 longer needed. Cloud Run is capped at two instances by the deployment script.
 Do not promise a free deployment or rely on free credits.
 
-The user selected project ID `movie-court`. Its existence, billing, and access
-have not yet been verified; replace it if GCP reports that it is unavailable.
+The current deployment target is project `movie-court-dsai523` in
+`europe-west1`. Use the project explicitly when running deployment commands.
 
 Use one region for Cloud Run, Artifact Registry, and Cloud SQL where possible.
 The examples use `europe-west1`; choose the location suitable for your team.
@@ -72,9 +72,9 @@ The deployment script references secret **names**, never values.
 From the repository root, set only non-secret configuration:
 
 ```sh
-export PROJECT_ID=movie-court
+export PROJECT_ID=movie-court-dsai523
 export REGION=europe-west1
-export SQL_CONNECTION_NAME=movie-court:europe-west1:movie-court-db
+export SQL_CONNECTION_NAME=movie-court-dsai523:europe-west1:movie-court-db
 export DATABASE_SECRET=movie-court-database-url
 export SESSION_SECRET=movie-court-session-key
 export TMDB_SECRET=movie-court-tmdb-token
@@ -87,10 +87,12 @@ The script:
 2. Creates an Artifact Registry Docker repository if missing.
 3. Creates a dedicated runtime service account and grants Cloud SQL Client.
 4. Grants that account access to only the three named secrets.
-5. Builds a uniquely tagged image with Cloud Build.
+5. Builds a uniquely tagged image with Cloud Build using `cloudbuild.yaml`.
+   That configuration enables Docker BuildKit, required by the Dockerfile's
+   optional build-secret mount.
 6. Runs a one-task Cloud Run job to create missing database tables.
 7. Deploys the image to Cloud Run with the SQL connection and secrets attached.
-8. Checks the service's `/healthz` endpoint and prints its HTTPS address.
+8. Checks the service's `/health` endpoint and prints its HTTPS address.
 
 The person deploying needs suitable IAM permissions for those actions, including
 permission to use the runtime service account. Cloud Build's build service
@@ -138,6 +140,10 @@ password and the corresponding secret together, then redeploy. Never delete
 an old version until the new revision has been validated.
 
 ## Troubleshooting
+
+- **Google-branded 404 for `/healthz`:** use `/health` for public Cloud Run
+  health checks. The legacy `/healthz` route remains available for direct local
+  container checks, but Google's front end can intercept that path.
 
 - **403 from GCP:** check the active identity, explicit project, API enablement,
   service account impersonation, and required IAM roles.
