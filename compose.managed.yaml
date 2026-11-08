@@ -1,0 +1,14 @@
+# Optional override for this managed coding environment's HTTPS proxy.
+# Normal local Docker and GCP do not need this file.
+services:
+  app:
+    build:
+      secrets:
+        - proxy_ca
+    environment:
+      REQUESTS_CA_BUNDLE: /run/cloud-ca-bundle.crt
+    volumes:
+      - ${CLOUD_CA_BUNDLE:-/etc/ssl/certs/ca-certificates.crt}:/run/cloud-ca-bundle.crt:ro
+secrets:
+  proxy_ca:
+    file: ${CLOUD_CA_BUNDLE:-/etc/ssl/certs/ca-certificates.crt}

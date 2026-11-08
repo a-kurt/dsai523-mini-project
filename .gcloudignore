@@ -1,0 +1,13 @@
+.gcloudignore
+.git
+.venv
+.env
+.env.*
+__pycache__
+.pytest_cache
+*.sqlite*
+instance
+credentials.json
+service-account*.json
+node_modules
+artifacts

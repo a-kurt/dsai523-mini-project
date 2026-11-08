@@ -1,0 +1,35 @@
+name: movie-court
+services:
+  db:
+    image: postgres:16-bookworm
+    environment:
+      POSTGRES_DB: movie_court
+      POSTGRES_USER: movie_court
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:?Set POSTGRES_PASSWORD in .env}
+    volumes:
+      - court-db:/var/lib/postgresql/data
+    healthcheck:
+      test: [CMD-SHELL, 'pg_isready -U movie_court -d movie_court']
+      interval: 3s
+      timeout: 3s
+      retries: 20
+  app:
+    build: .
+    ports:
+      - '127.0.0.1:8080:8080'
+    environment:
+      DATABASE_URL: postgresql+psycopg://movie_court:${POSTGRES_PASSWORD:?Set POSTGRES_PASSWORD in .env}@db:5432/movie_court
+      SECRET_KEY: ${SECRET_KEY:?Set SECRET_KEY in .env}
+      TMDB_READ_TOKEN: ${TMDB_READ_TOKEN:-}
+      APP_ENV: development
+    depends_on:
+      db:
+        condition: service_healthy
+    command: [sh, -c, 'flask --app movie_court init-db && exec sh scripts/container-start.sh']
+    healthcheck:
+      test: [CMD, python, -c, 'import urllib.request; urllib.request.urlopen("http://127.0.0.1:8080/healthz")']
+      interval: 10s
+      timeout: 3s
+      retries: 10
+volumes:
+  court-db:
